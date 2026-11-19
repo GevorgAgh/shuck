@@ -1,0 +1,33 @@
+# Fly.io config. Change `app` to a unique name before `fly launch --copy-config --no-deploy`.
+app = "shuka-marketplace"
+primary_region = "fra"
+
+[build]
+
+[env]
+  NODE_ENV = "production"
+  PORT = "8080"
+  DATA_DIR = "/data"
+
+# The SQLite file, uploads/ and backups/ live on this persistent volume.
+[mounts]
+  source = "shuka_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    path = "/healthz"
+    timeout = "5s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

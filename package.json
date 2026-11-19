@@ -1,0 +1,37 @@
+{
+  "name": "shuka",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^13.2.0",
+    "compression": "^1.8.2",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.3.0",
+    "multer": "^2.5.0",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.3.0",
+    "concurrently": "^10.0.7",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.6",
+    "vite": "^8.3.8"
+  },
+  "scripts": {
+    "dev": "node server/seed.js && concurrently -k -n api,web -c blue,green \"node --watch-path=server server/index.js\" \"vite --config client/vite.config.js\"",
+    "build": "vite build --config client/vite.config.js",
+    "start": "node server/index.js",
+    "local": "npm run build && node server/seed.js && node server/index.js",
+    "migrate": "node server/migrate.js",
+    "seed": "node server/seed.js",
+    "seed:reset": "node server/seed.js --reset",
+    "backup": "node server/backup.js",
+    "test:breakit": "node tests/break-it.js"
+  }
+}
