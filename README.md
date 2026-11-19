@@ -1,5 +1,7 @@
 # Shuka — Amazon-style marketplace for Armenia
 
+**Live:** https://shuka-marketplace.fly.dev (Fly.io, Frankfurt, SQLite on a persistent volume)
+
 Shuka («շուկա», "market") is a multi-seller marketplace: anyone can register, sell products, and buy
 from several sellers in one cart. Prices are in AMD, delivery is inside Armenia, payment is cash on delivery.
 

@@ -11,7 +11,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import sharp from 'sharp';
 
-const BASE = (process.env.BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
+const BASE = (process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/$/, '');
 const API = `${BASE}/api`;
 const onlyIdx = process.argv.indexOf('--only');
 const ONLY = onlyIdx > -1 ? process.argv[onlyIdx + 1]?.toLowerCase() : null;
@@ -68,6 +68,7 @@ async function newSeller(label) {
 }
 
 let categoryId;
+const createdProducts = []; // unpublished again at the end, so the store stays clean
 async function newProduct(seller, { title = 'Break-it product', price = 1000, stock = 10 } = {}) {
   if (!categoryId) categoryId = (await seller.get('/categories')).body.categories[0].id;
   const r = await seller.post('/seller/products', {
@@ -75,6 +76,7 @@ async function newProduct(seller, { title = 'Break-it product', price = 1000, st
   });
   if (r.status !== 201) throw new Error(`create product failed: ${JSON.stringify(r.body)}`);
   const id = r.body.product.id;
+  createdProducts.push({ seller, id });
   const fd = new FormData();
   fd.append('images', new Blob([await testImage()], { type: 'image/png' }), 'photo.png');
   const up = await seller.req('POST', `/seller/products/${id}/images`, fd);
@@ -342,5 +344,8 @@ for (const t of selected) {
     console.log(`  FAIL: ${e.message}${e.details ? ' ' + JSON.stringify(e.details) : ''}\n`);
   }
 }
+// Clean up: unpublish every product the tests created (products that were ordered are never deleted).
+await Promise.all(createdProducts.map(({ seller, id }) => seller.patch(`/seller/products/${id}`, { is_published: false })));
+if (createdProducts.length) console.log(`(cleaned up: unpublished ${createdProducts.length} test products)`);
 console.log(`${selected.length - failed}/${selected.length} break-it tests passed`);
 process.exit(failed ? 1 : 0);
